@@ -10,6 +10,6 @@ Welcome to **ResuMate-AI**, a transformative AI-driven platform designed to revo
 
 ## Video Overview
 
-[![Join the Future of Recruitment with ResuMate-AI](https://pushai-test-bucket.s3.ap-south-1.amazonaws.com/ai/DALL·E+2024-02-07+17.18.08.webp)](YourVideoURL "https://pushai-test-bucket.s3.ap-south-1.amazonaws.com/ai/Join+the+future+of+recruitment+with+ResuMate-AI.+(6).mp4")
+[![Join the Future of Recruitment with ResuMate-AI](https://pushai-test-bucket.s3.ap-south-1.amazonaws.com/ai/DALL·E+2024-02-07+17.18.08.webp)]("https://pushai-test-bucket.s3.ap-south-1.amazonaws.com/ai/Join+the+future+of+recruitment+with+ResuMate-AI.+(6).mp4")
 
 Click on the image above to watch the video and learn more about how ResuMate-AI is changing the landscape of recruitment.
