@@ -12,10 +12,10 @@ import { ManagedUpload } from 'aws-sdk/lib/s3/managed_upload';
 import { listenerCount } from "process";
 import { retry } from "rxjs";
 import { error } from "console";
-import {StatusDto} from '../pdf-extraction/dto/create-pdf-extraction.dto'
+import {StatusDto} from './dto/create-pdf-extraction.dto'
 import { json } from "stream/consumers";
 import { Cron } from '@nestjs/schedule';
-import { MailService } from "./email.service";
+import { EmailService } from "../email-service/email.service";
 
 @Injectable()
 export class PdfExtractionService {
@@ -28,7 +28,7 @@ export class PdfExtractionService {
     private extractDataModel: Model<ExtractDataModel>,
     @InjectModel(User.name) private userModel: Model<User>,
     @InjectModel(AdminModel.name) private adminModel: Model<AdminModel>,
-    private mailService: MailService
+    private mailService: EmailService
   ) { 
     this.s3 = new AWS.S3({
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,

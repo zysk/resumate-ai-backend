@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
-import { UserStatus } from './schema/user';
+import { UserStatus } from '../pdf-extraction/schema/user';
 
 @Injectable()
-export class MailService {
+export class EmailService {
     private transporter;
 
     constructor() {

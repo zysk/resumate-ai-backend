@@ -16,7 +16,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { PdfExtractionService } from './pdf-extraction.service';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import * as AWS from 'aws-sdk';
-import {StatusDto} from "../pdf-extraction/dto/create-pdf-extraction.dto"
+import {StatusDto} from "./dto/create-pdf-extraction.dto"
 @Controller('pdf')
 export class PdfController {
   private s3: AWS.S3;
@@ -60,10 +60,6 @@ export class PdfController {
   async extractTexts(
     @UploadedFiles() files,
   ): Promise<{ filename: string; text: string; s3Url: string }[]> {
-
-console.log(files);
-
-
     const extractedData = await Promise.all(
       files.map(async (file) => {
         // Generate a unique key for the S3 object
@@ -88,11 +84,6 @@ console.log(file.originalname);
     );
     return extractedData;
   }
-
-
-
-
-
 
 //!- list of emails
 @Get('fetch-emails')
@@ -155,14 +146,5 @@ async testMyApi(): Promise<any> {
     return  await this.pdfExtractionService.testMyApi();
   
 }
-
-
-
-
-
 }
-
-
-
-
 

@@ -7,7 +7,7 @@ import { ExtractDataModel, ExtractDataSchema } from './schema/extract_data';
 import { ConfigModule } from '@nestjs/config';
 import { AdminModel, AdminModelSchema } from './schema/admin_register';
 import { ScheduleModule } from '@nestjs/schedule';
-import { MailService } from './email.service';
+import { EmailService } from '../email-service/email.service';
 
 @Module({
   // imports: [ MongooseModule.forRoot(process.env.MONGODB_URI),
@@ -23,6 +23,6 @@ import { MailService } from './email.service';
    
     ]),],
   controllers: [PdfController],
-  providers: [PdfExtractionService,MailService],
+  providers: [PdfExtractionService,EmailService],
 })
 export class PdfExtractionModule {}
