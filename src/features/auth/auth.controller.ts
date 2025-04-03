@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpException, HttpStatus } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
@@ -7,28 +7,36 @@ import { UpdateAuthDto } from './dto/update-auth.dto';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post()
-  create(@Body() createAuthDto: CreateAuthDto) {
-    return this.authService.create(createAuthDto);
-  }
 
-  @Get()
-  findAll() {
-    return this.authService.findAll();
+  //! SIGN-UP
+  @Post('sign-up')
+    async signUp(@Body() body: any): Promise<any> {
+      return await this.authService.signUp(body);
+    
   }
+  
+  
+  //! LOGIN
+  @Post('login')
+  async login(@Body() body: { email: string; password: string }) {
+    try {
+      console.log(body);
+      const user = await this.authService.login(body.email, body.password);
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.authService.findOne(+id);
-  }
+      if (!user) {
+        throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
+      }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAuthDto: UpdateAuthDto) {
-    return this.authService.update(+id, updateAuthDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.authService.remove(+id);
+      return {
+        success: true,
+        message: 'Login successful',
+        data: user,
+      };
+    } catch (error) {
+      throw new HttpException(
+        { success: false, message: error.message || 'Login failed' },
+        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }

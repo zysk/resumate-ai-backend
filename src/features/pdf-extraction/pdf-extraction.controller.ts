@@ -25,35 +25,6 @@ export class PdfController {
    
   }
 
-
-
-
-//! SIGN-UP
-@Post('sign-up')
-  async signUp(@Body() body: any): Promise<any> {
-    return await this.pdfExtractionService.signUp(body);
-  
-}
-
-
-//! LOGIN
-@Post('login') 
-  async login(@Body() body: any): Promise<any> {
-    try {
-      const user = await this.pdfExtractionService.login(body.email, body.password);
-
-      if (user) {
-        return user;
-      } else {
-        throw new Error('Authentication failed. Invalid credentials.');
-      }
-    } catch (error) {
-      console.error('Error during login:', error.message);
-      throw new Error('Login failed.');
-    }
-  }
-
-
 //! Using this Apis
 @Post('extract-texts')
   @UseInterceptors(FilesInterceptor('files'))

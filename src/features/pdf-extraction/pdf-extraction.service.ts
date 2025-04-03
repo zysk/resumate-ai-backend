@@ -33,9 +33,8 @@ export class PdfExtractionService {
     this.s3 = new AWS.S3({
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    region: process.env.AWS_REGION,
   });
-
-    
     this.openAi = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
   }
 
@@ -71,7 +70,7 @@ export class PdfExtractionService {
 
   async uploadToS3(file: Buffer, key: string): Promise<ManagedUpload.SendData> {
     const params: AWS.S3.PutObjectRequest = {
-      Bucket: 'pushai-test-bucket',
+      Bucket: process.env.AWS_BUCKET,
       Key: key, // Use the generated key
       Body: file,
     };
@@ -79,14 +78,11 @@ export class PdfExtractionService {
     return this.s3.upload(params).promise();
   }
 
-
-
+// SMTp-integration
+// tmr
   async gptReview(email: string): Promise<any> {
     try {
-
       console.log(email);
-      
-
       const data = await this.extractDataModel.findOne({ email: email });
 
       const resumeText = data.data;
@@ -97,9 +93,20 @@ export class PdfExtractionService {
     };
       const messages: Message[] = [
         {
-            role: "system",
-            content:
-            "You are a sophisticated AI capable of evaluating resumes. Please review the given resume thoroughly, taking into account skills, work experience, projects, and other significant factors. Provide a score out of 100. Additionally, extract key details such as name, email, phone number, and place. When detailing skills, list each skill as a separate object within the 'skills' array, using the format: 'skills': [{ skill: 'HTML', score: 85 }, { skill: 'CSS', score: 80 }, ...]. Determine the most suitable_role for the candidate. Also, generate a word cloud object representing skills and their respective scores. Compile all the information in a structured JSON format, using keys such as 'suitable_role'.",
+          role: "system",
+    content: `You are an AI that strictly outputs JSON responses. Always format your response as a valid JSON object without extra text. Example format:
+    {
+      "name": "John Doe",
+      "email": "john.doe@example.com",
+      "phone": "+1234567890",
+      "place": "New York, USA",
+      "suitable_role": "Software Engineer",
+      "score": 85,
+      "skills": [
+        { "skill": "HTML", "score": 85 },
+        { "skill": "CSS", "score": 80 }
+      ]
+    }`
           },
         {
             role: "user",
@@ -114,17 +121,20 @@ export class PdfExtractionService {
 
       const completion = await this.openAi.chat.completions.create({
         messages,
-        model: "gpt-3.5-turbo-16k-0613",
+        model:  "gpt-4-turbo",
         temperature: 0.5,
       });
 
+      
+
       const assistantResponse = completion.choices[0].message.content;
 
-      // console.log("------------------>", assistantResponse);
+      console.log("------------------>", assistantResponse);
+
+      this.customEstimation(completion);
 
       const saveResponse = await this.storeGptResponseInDb(assistantResponse);
 
-      console.log("content-1-score");
       return "saved the score successfully"
     } catch (error) {
       console.error("An error occurred while reviewing the resume:", error);
@@ -152,6 +162,18 @@ console.log("saveInDb---------------",saveInDb);
 
     const result = await saveInDb.save();
     return result;
+  }
+
+  async customEstimation(inputTokenUsage){
+    const inputTokens = inputTokenUsage.usage?.prompt_tokens ?? 0;
+    const outputTokens = inputTokenUsage.usage?.completion_tokens ?? 0;
+
+    // 🔹 Cost Calculation
+    const inputCost = (inputTokens / 1000) * 0.01;
+    const outputCost = (outputTokens / 1000) * 0.03;
+    const totalCost = inputCost + outputCost;
+    console.log("totalCost",totalCost);
+    
   }
 
 
@@ -377,43 +399,5 @@ notifyHR(user: User) {
 
   async testMyApi() {
     return "Hello World! from resumer ai";
-  }
-
-  async signUp(body) {
-    const { firstName, lastName, email, password } = body;
-
-    try {
-      // Create a new instance of AdminModel using the provided body data
-      const admin = new this.adminModel({
-        firstName: firstName,
-        lastName: lastName,
-        email: email,
-        password: password,
-      });
-
-      // Save the new admin user to the database
-      const result = await admin.save();
-
-      // Return the saved admin user or a success message
-      return result;
-    } catch (error) {
-      // Handle any errors that may occur during signup
-      console.error("Error during sign-up:", error.message);
-      throw new Error("Sign-up failed.");
-    }
-  }
-
-  async login(email: string, password: string) {
-    const user = await this.adminModel.findOne({ email, password }).exec();
-    if (user) {
-      // Generate a JWT token upon successful login
-      const token = jwt.sign({ userId: user._id }, "your-secret-key", {
-        expiresIn: "1h", // Set the token expiration time as per your requirement
-      });
-
-      return { token };
-    } else {
-      return null;
-    }
   }
 }
